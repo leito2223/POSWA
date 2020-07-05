@@ -11,6 +11,7 @@ namespace POSWA.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public Productos()
         {
+ 
             DetProforma = new HashSet<DetProforma>();
         }
 
@@ -41,7 +42,7 @@ namespace POSWA.Models
         public DateTime? FechaCreacion { get; set; }
 
         public bool? Activo { get; set; }
-
+   
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<DetProforma> DetProforma { get; set; }
 

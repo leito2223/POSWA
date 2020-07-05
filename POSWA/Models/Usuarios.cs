@@ -15,7 +15,7 @@ namespace POSWA.Models
         }
 
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.None)]
+     
         public int CodUsuario { get; set; }
 
         [StringLength(30)]

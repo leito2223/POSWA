@@ -19,7 +19,7 @@ namespace POSWA.Models
         public virtual DbSet<ProductosClasificacion> ProductosClasificacion { get; set; }
         public virtual DbSet<sysdiagrams> sysdiagrams { get; set; }
         public virtual DbSet<Usuarios> Usuarios { get; set; }
-
+        public virtual DbSet<Parametros> Parametros { get; set; }
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Clientes>()
