@@ -12,7 +12,7 @@ namespace POSWA.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public ProductosClasificacion()
         {
-            Productos = new HashSet<Productos>();
+          //  Productos = new HashSet<Productos>();
         }
 
         [Key]
@@ -22,7 +22,7 @@ namespace POSWA.Models
         [StringLength(30)]
         public string Nombre { get; set; }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Productos> Productos { get; set; }
+    //    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+      //  public virtual ICollection<Productos> Productos { get; set; }
     }
 }

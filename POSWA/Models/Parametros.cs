@@ -14,5 +14,9 @@ namespace POSWA.Models
 
         [StringLength(500)]
         public string UrlImagenesApp { get; set; }
+
+        public string UrlFoto { get; set; }
+        public string Nombre { get; set; }
+        public string Cedula { get; set; }
     }
 }

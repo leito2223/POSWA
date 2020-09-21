@@ -12,7 +12,7 @@ namespace POSWA.Models
         public Productos()
         {
  
-            DetProforma = new HashSet<DetProforma>();
+         //   DetProforma = new HashSet<DetProforma>();
         }
 
         [Key]
@@ -43,9 +43,9 @@ namespace POSWA.Models
 
         public bool? Activo { get; set; }
    
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<DetProforma> DetProforma { get; set; }
+       // [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+      //  public virtual ICollection<DetProforma> DetProforma { get; set; }
 
-        public virtual ProductosClasificacion ProductosClasificacion { get; set; }
+      //  public virtual ProductosClasificacion ProductosClasificacion { get; set; }
     }
 }

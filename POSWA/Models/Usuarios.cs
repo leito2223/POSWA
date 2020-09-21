@@ -11,12 +11,13 @@ namespace POSWA.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public Usuarios()
         {
-            EncProforma = new HashSet<EncProforma>();
+           // EncProforma = new HashSet<EncProforma>();
         }
 
         [Key]
      
         public int CodUsuario { get; set; }
+        public int idRol { get; set; }
 
         [StringLength(30)]
         public string Nombre { get; set; }
@@ -26,7 +27,7 @@ namespace POSWA.Models
 
         public bool? Activo { get; set; }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<EncProforma> EncProforma { get; set; }
+      //  [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+     //   public virtual ICollection<EncProforma> EncProforma { get; set; }
     }
 }

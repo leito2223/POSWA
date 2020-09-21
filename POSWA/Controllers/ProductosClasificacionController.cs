@@ -8,9 +8,12 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
+using System.Web.Http.Cors;
 using System.Web.UI.WebControls;
 namespace POSWA.Controllers
 {
+    [AllowAnonymous]
+    [EnableCors("*", "*", "*")]
     public class ProductosClasificacionController:ApiController
     {
         POSContext db = new POSContext();
@@ -40,7 +43,7 @@ namespace POSWA.Controllers
             {
                 pc
             };
-            return Ok(obj);
+            return Ok(pc);
         }
         public HttpResponseMessage Post([FromBody] ProductosClasificacion pc)
         {
@@ -77,7 +80,8 @@ namespace POSWA.Controllers
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
-        // [Route("api/Clientes/CambiarClave")]
+        [Route("api/ProductosClasificacion/Actualizar")]
+        [AllowAnonymous]
         [HttpPut]
         public HttpResponseMessage Put([FromBody] ProductosClasificacion cambio)
         {
@@ -111,7 +115,8 @@ namespace POSWA.Controllers
         }
 
 
-
+        [Route("api/ProductosClasificacion/Eliminar")]
+        [AllowAnonymous]
         [HttpDelete]// [Route("api/Productos/Eliminar")]
 
         public async Task<IHttpActionResult> Eliminar(string id)

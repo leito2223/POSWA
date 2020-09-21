@@ -22,14 +22,14 @@ namespace POSWA.Models
         [StringLength(6)]
         public string Codpro { get; set; }
 
-        [StringLength(30)]
+        
         public string Nompro { get; set; }
 
         [Column(TypeName = "money")]
         public decimal? Precio { get; set; }
 
-        public virtual EncProforma EncProforma { get; set; }
+       /* public virtual EncProforma EncProforma { get; set; }
 
-        public virtual Productos Productos { get; set; }
+        public virtual Productos Productos { get; set; }*/
     }
 }

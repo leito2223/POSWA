@@ -1,13 +1,18 @@
-﻿using POSWA.Models;
+﻿using OpenHtmlToPdf;
+using POSWA.Models;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Mail;
 using System.Threading.Tasks;
 using System.Web;
+using System.Web.Configuration;
 using System.Web.Http;
+using System.Web.Http.Cors;
 using System.Web.UI.WebControls;
 
 namespace POSWA.Controllers
@@ -18,29 +23,45 @@ namespace POSWA.Controllers
         object resp;
         public HttpResponseMessage GetProformas()
         {
-            var proforma = db.EncProforma.Select(d => new
-            {
-                d.NumProforma,
-                Cliente = db.Clientes.Where(a => a.CodCliente == d.CodCliente).Select( c => new { c.CodCliente, c.Nombre,c.Email, c.Telefono, c.Direccion}).FirstOrDefault(),
-                Usuario = db.Usuarios.Where(a => a.CodUsuario == d.CodUsuario).Select( u => new { u.CodUsuario, u.Nombre }).ToList(),
-                d.FecFactura,
-                d.SubTotal,
-                d.Impuesto,
-                d.Descuento,
-                d.TipoPago,
-                DetProform = db.DetProforma.Select(det => new { 
-                    det.Codpro,
-                    det.Nompro,
-                    det.NumLinea,
-                    det.Precio
-                    
-                }).ToList()
-            }
+            //var proforma = db.EncProforma.Select(d => new
+            //{
+            //    d.NumProforma,
+            //    Cliente = db.Clientes.Where(a => a.CodCliente == d.CodCliente).Select( c => new { c.CodCliente, c.Nombre,c.Email, c.Telefono, c.Direccion}).FirstOrDefault(),
+            //    Usuario = db.Usuarios.Where(a => a.CodUsuario == d.CodUsuario).Select( u => new { u.CodUsuario, u.Nombre }).ToList(),
+            //    d.FecFactura,
+            //    d.SubTotal,
+            //    d.Impuesto,
+            //    d.Descuento,
+            //    d.TipoPago,
+            //    DetProform = db.DetProforma.Select(det => new { 
+            //        det.Codpro,
+            //        det.Nompro,
+            //        det.NumLinea,
+            //        det.Precio
 
-            ).ToList();
-            return Request.CreateResponse(HttpStatusCode.OK, proforma);
+            //    }).ToList()
+            //}
+            //).ToList();
+
+            //var EncProforma = db.EncProforma.Select(d => new
+            //{
+
+            //        d.NumProforma,
+            //        Cliente = db.Clientes.Where(a => a.CodCliente == d.CodCliente).Select( c => new { c.CodCliente, c.Nombre,c.Email, c.Telefono, c.Direccion}).FirstOrDefault(),
+            //        Usuario = db.Usuarios.Where(a => a.CodUsuario == d.CodUsuario).Select( u => new { u.CodUsuario, u.Nombre }).ToList(),
+            //        d.FecFactura,
+            //        d.SubTotal,
+            //        d.Impuesto,
+            //        d.Descuento,
+            //        d.TipoPago,
+
+            //}).ToList();
+
+            var EncVtas = db.EncProforma.ToList();
+          
+            return Request.CreateResponse(HttpStatusCode.OK, EncVtas);
         }
-
+        [EnableCors("*", "*", "GET"), HttpGet]
         public IHttpActionResult GetOneProforma(string id)
         {
             var proforma = db.EncProforma.Where(p => p.NumProforma == id).Select(d => new
@@ -53,7 +74,7 @@ namespace POSWA.Controllers
                 d.Impuesto,
                 d.Descuento,
                 d.TipoPago,
-                DetProform = db.DetProforma.Select(det => new {
+                DetProform = db.DetProforma.Where(a => a.NumProforma == d.NumProforma).Select(det => new {
                     det.Codpro,
                     det.Nompro,
                     det.NumLinea,
@@ -77,6 +98,7 @@ namespace POSWA.Controllers
             };
             return Ok(proforma);
         }
+        [EnableCors("*", "*", "POST"), HttpPost]
         public async Task<HttpResponseMessage> PostAsync([FromBody] Proforma proforma)
         {
                     var transaccion = db.Database.BeginTransaction();
@@ -100,7 +122,7 @@ namespace POSWA.Controllers
                     foreach(var det in proforma.detProforma)
                     {
                         det.NumProforma = proforma.encProforma.NumProforma;
-                        det.Nompro = db.Productos.Where(a => a.Codpro == det.Codpro).Select(u => u.Nompro).FirstOrDefault();
+                        det.Nompro = det.Nompro; //db.Productos.Where(a => a.Codpro == det.Codpro).Select(u => u.Nompro).FirstOrDefault();
                         db.DetProforma.Add(det);
                         db.SaveChanges();
 
@@ -127,7 +149,8 @@ namespace POSWA.Controllers
             }
         }
         // [Route("api/Clientes/CambiarClave")]
-        [HttpPut]
+        [EnableCors("*", "*", "PUT"), HttpPut]
+        
         public async Task<HttpResponseMessage> PutAsync([FromBody] Proforma cambio)
         {
             var transaccion = db.Database.BeginTransaction();
@@ -186,8 +209,107 @@ namespace POSWA.Controllers
             }
         }
 
+        [EnableCors("*", "*", "POST"), HttpPost]
+        [Route("api/Proformas/EnvioCorreos")]
+        public HttpResponseMessage GetCorreos([FromBody] string html, int para)
+        {
+
+            try
+            {
 
 
+                // Parametros2 param = db.Parametros2.FirstOrDefault();
+                var user = db.Clientes.Where(a => a.CodCliente == para).FirstOrDefault();
+                List<Object[]> adjuntos = new List<Object[]>();
+                var pdf = Pdf.From(html).WithObjectSetting("web.defaultEncoding", "utf-8").Content();
+
+
+                MemoryStream newStream = new MemoryStream(pdf);
+
+                newStream.Flush();
+                newStream.Position = 0;
+                adjuntos.Add(new object[] { (Stream)newStream, "Factura_Proforma.pdf" });
+                //  adjuntos.Add(new object[] { pdf, "Liquidacion.pdf" });
+                bool respuesta = SendV2(user.Email, "l.arce22@hotmail.com", "", WebConfigurationManager.AppSettings["UserName"], user.Nombre, "Factura Proforma", html, WebConfigurationManager.AppSettings["HostName"], int.Parse(WebConfigurationManager.AppSettings["Port"].ToString()), false, WebConfigurationManager.AppSettings["UserName"], WebConfigurationManager.AppSettings["Password"], adjuntos);
+
+                return Request.CreateResponse(HttpStatusCode.OK, respuesta);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+        public bool SendV2(string para, string copia, string copiaOculta, string de, string displayName, string asunto,
+       string html, string HostServer, int Puerto, bool EnableSSL, string UserName, string Password, List<Object[]> ArchivosAdjuntos = null)
+        {
+            try
+            {
+
+                MailMessage mail = new MailMessage();
+                mail.Subject = asunto;
+                mail.Body = html;
+                mail.IsBodyHtml = true;
+                // * mail.From = new MailAddress(WebConfigurationManager.AppSettings["UserName"], displayName);
+                mail.From = new MailAddress(de, displayName);
+
+                var paraList = para.Split(';');
+                foreach (var p in paraList)
+                {
+                    if (p.Trim().Length > 0)
+                        mail.To.Add(p.Trim());
+                }
+                var ccList = copia.Split(';');
+                foreach (var cc in ccList)
+                {
+                    if (cc.Trim().Length > 0)
+                        mail.CC.Add(cc.Trim());
+                }
+                var ccoList = copiaOculta.Split(';');
+                foreach (var cco in ccoList)
+                {
+                    if (cco.Trim().Length > 0)
+                        mail.Bcc.Add(cco.Trim());
+                }
+
+                if (ArchivosAdjuntos != null)
+                {
+                    foreach (var archivo in ArchivosAdjuntos)
+                    {
+                        //  if (!string.IsNullOrEmpty(archivo))
+                        mail.Attachments.Add(new Attachment((Stream)archivo[0], archivo[1].ToString()));
+                    }
+                }
+                //if (ArchivosAdjuntos != null)
+                //{
+                //    foreach (var archivo in ArchivosAdjuntos)
+                //    {
+                //        //if (!string.IsNullOrEmpty(archivo))
+                //        System.Net.Mail.Attachment Data = new System.Net.Mail.Attachment(archivo);
+                //        mail.Attachments.Add(Data);
+                //    }
+                //}
+
+
+                SmtpClient client = new SmtpClient();
+                client.Host = HostServer; // WebConfigurationManager.AppSettings["HostName"];
+                client.Port = Puerto; // int.Parse(WebConfigurationManager.AppSettings["Port"].ToString());
+                client.UseDefaultCredentials = false;
+                client.DeliveryMethod = SmtpDeliveryMethod.Network;
+                client.EnableSsl = EnableSSL; // bool.Parse(WebConfigurationManager.AppSettings["EnableSsl"]);
+                client.Credentials = new NetworkCredential(UserName, Password);
+
+                client.Send(mail);
+                client.Dispose();
+                mail.Dispose();
+
+                return true;
+
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
         //[HttpDelete]// [Route("api/Productos/Eliminar")]
 
         //public async Task<IHttpActionResult> Eliminar(string id)

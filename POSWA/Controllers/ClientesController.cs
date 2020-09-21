@@ -8,9 +8,12 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
+using System.Web.Http.Cors;
 using System.Web.UI.WebControls;
 namespace POSWA.Controllers
 {
+    [AllowAnonymous]
+    [EnableCors("*", "*", "*")]
     public class ClientesController: ApiController
     {
         POSContext db = new POSContext();
@@ -40,7 +43,7 @@ namespace POSWA.Controllers
             {
                 user
             };
-            return Ok(obj);
+            return Ok(user);
         }
         public HttpResponseMessage Post([FromBody] Clientes cliente)
         {
@@ -77,7 +80,9 @@ namespace POSWA.Controllers
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
-        // [Route("api/Clientes/CambiarClave")]
+
+         [Route("api/Clientes/Actualizar")]
+        [AllowAnonymous]
         [HttpPut]
         public HttpResponseMessage Put([FromBody] Clientes cambio)
         {
@@ -116,7 +121,8 @@ namespace POSWA.Controllers
         }
 
 
-
+        [Route("api/Clientes/Eliminar")]
+        [AllowAnonymous]
         [HttpDelete]// [Route("api/Productos/Eliminar")]
 
         public async Task<IHttpActionResult> Eliminar(int id)
@@ -129,8 +135,14 @@ namespace POSWA.Controllers
 
             db.Clientes.Remove(cliente);
 
+            try
+            {
+                 await db.SaveChangesAsync();
 
-            await db.SaveChangesAsync();
+            }catch(Exception ex)
+            {
+                throw ex;
+            }
 
             return Ok("OK");
         }

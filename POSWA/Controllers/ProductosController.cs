@@ -11,8 +11,12 @@ using System.Web;
 using System.Web.Http;
 using System.Web.UI.WebControls;
 using System.Drawing;
+using System.Web.Http.Cors;
+
 namespace POSWA.Controllers
 {
+    [AllowAnonymous]
+    [EnableCors("*", "*", "*")]
     public class ProductosController:ApiController
     {
         POSContext db = new POSContext();
@@ -48,12 +52,12 @@ namespace POSWA.Controllers
             return NombreImagen;
         }
 
-    
-        public HttpResponseMessage GetProducto()
+        [EnableCors("*", "*", "GET"), HttpGet]
+        public HttpResponseMessage GetProducto(string searchText = "")
         {
 
 
-            var producto = db.Productos.Where(a => a.Activo == true).Select(p => new {
+            var producto = db.Productos.Where(a => string.IsNullOrEmpty(searchText)? true: a.Nompro.ToLower().Contains(searchText.ToLower())).Select(p => new {
                 p.Codpro,
                 p.Nompro,
                 p.Descripcion,
@@ -62,12 +66,15 @@ namespace POSWA.Controllers
                 p.CodBarras,
                 p.Precio,
                 p.Cantidad,
+                p.Activo,
                 Imagen = db.Parametros.Select(a => a.UrlImagenesApp).FirstOrDefault()+ "Productos/" + p.Imagen
 
             }).ToList();
+
+            producto = producto.Where(a => a.Activo == true).ToList();
             return Request.CreateResponse(HttpStatusCode.OK, producto);
         }
-
+        [EnableCors("*", "*", "GET"), HttpGet]
         public IHttpActionResult GetOneProducto(string id)
         {
             var producto = db.Productos.Where(a => a.Codpro == id && a.Activo == true).Select(p => new {
@@ -94,8 +101,10 @@ namespace POSWA.Controllers
             {
                 producto
             };
-            return Ok(obj);
+            return Ok(producto);
         }
+        
+       
         public HttpResponseMessage Post([FromBody] ProductosViewModel producto)
         {
             try 
@@ -146,7 +155,9 @@ namespace POSWA.Controllers
             }
         }
         // [Route("api/Clientes/CambiarClave")]
-        [HttpPut]
+
+        [Route("api/Productos/Actualizar")]
+        [AllowAnonymous]
         public HttpResponseMessage Put([FromBody] ProductosViewModel cambio)
         {
             try
@@ -177,7 +188,7 @@ namespace POSWA.Controllers
                     pc.Imagen = pc.Imagen;
                 }
                 pc.FechaCreacion = pc.FechaCreacion;
-                pc.Activo = cambio.Activo;
+                pc.Activo = true;
 
                 db.SaveChanges();
 
@@ -196,7 +207,8 @@ namespace POSWA.Controllers
         }
 
 
-
+        [Route("api/Productos/Eliminar")]
+        [AllowAnonymous]
         [HttpDelete]// [Route("api/Productos/Eliminar")]
 
         public async Task<IHttpActionResult> Eliminar(string id)
@@ -207,9 +219,9 @@ namespace POSWA.Controllers
                 return NotFound();
             }
 
-            db.Productos.Remove(cliente);
+            db.Entry(cliente).State = EntityState.Modified;
 
-
+            cliente.Activo = false;
             await db.SaveChangesAsync();
 
             return Ok("OK");

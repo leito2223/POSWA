@@ -11,7 +11,7 @@ namespace POSWA.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public Clientes()
         {
-            EncProforma = new HashSet<EncProforma>();
+      //      EncProforma = new HashSet<EncProforma>();
         }
 
         [Key]
@@ -29,7 +29,7 @@ namespace POSWA.Models
         [StringLength(100)]
         public string Direccion { get; set; }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<EncProforma> EncProforma { get; set; }
+      //  [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+       // public virtual ICollection<EncProforma> EncProforma { get; set; }
     }
 }

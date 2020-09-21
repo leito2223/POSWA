@@ -8,10 +8,13 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
+using System.Web.Http.Cors;
 using System.Web.UI.WebControls;
 
 namespace POSWA.Controllers
 {
+    [AllowAnonymous]
+    [EnableCors("*", "*", "*")]
     public class UsuariosController: ApiController
     {
         POSContext db = new POSContext();
@@ -47,7 +50,7 @@ namespace POSWA.Controllers
             {
                user
             };
-            return Ok(obj);
+            return Ok(user);
         }
         public HttpResponseMessage Post([FromBody] Usuarios cliente)
         {
@@ -61,8 +64,8 @@ namespace POSWA.Controllers
 
 
                     Usr.Nombre = cliente.Nombre;
-               
 
+                    Usr.idRol = cliente.idRol;
                     Usr.Clave = BCrypt.Net.BCrypt.HashPassword(cliente.Clave);
 
                     Usr.Activo = true;

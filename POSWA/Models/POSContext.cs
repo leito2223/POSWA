@@ -75,10 +75,10 @@ namespace POSWA.Models
                 .IsFixedLength()
                 .IsUnicode(false);
 
-            modelBuilder.Entity<EncProforma>()
-                .HasMany(e => e.DetProforma)
-                .WithRequired(e => e.EncProforma)
-                .WillCascadeOnDelete(false);
+            //modelBuilder.Entity<EncProforma>()
+            //    .HasMany(e => e.DetProforma)
+            //    .WithRequired(e => e.EncProforma)
+            //    .WillCascadeOnDelete(false);
 
             modelBuilder.Entity<Productos>()
                 .Property(e => e.Codpro)
@@ -118,10 +118,10 @@ namespace POSWA.Models
                 .Property(e => e.Nombre)
                 .IsUnicode(false);
 
-            modelBuilder.Entity<ProductosClasificacion>()
-                .HasMany(e => e.Productos)
-                .WithOptional(e => e.ProductosClasificacion)
-                .HasForeignKey(e => e.CodCla);
+            //modelBuilder.Entity<ProductosClasificacion>()
+            //    .HasMany(e => e.Productos)
+            //    .WithOptional(e => e.ProductosClasificacion)
+            //    .HasForeignKey(e => e.CodCla);
 
             modelBuilder.Entity<Usuarios>()
                 .Property(e => e.Nombre)
